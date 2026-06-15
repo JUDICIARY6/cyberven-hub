@@ -17,7 +17,7 @@
         .form-group input:focus { outline: none; border-color: #00f2fe; background: rgba(255, 255, 255, 0.08); box-shadow: 0 0 10px rgba(0, 242, 254, 0.2); }
         .btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); border: none; border-radius: 14px; color: #020c1b; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4); text-transform: uppercase; letter-spacing: 1px; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 242, 254, 0.6); }
-        .error-message { color: #ff4a4a; text-align: center; margin-top: 20px; font-size: 0.95rem; display: none; font-weight: 500; line-height: 1.5; background: rgba(255, 74, 74, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 74, 74, 0.2); }
+        .error-message { color: #ff4a4a; text-align: center; margin-top: 20px; font-size: 0.95rem; display: none; font-weight: 500; background: rgba(255, 74, 74, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 74, 74, 0.2); line-height: 1.5; }
         .results-container { width: 100%; max-width: 800px; margin-top: 20px; }
         .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 25px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease; }
         .glass-card:hover { transform: translateY(-4px); border-color: rgba(0, 242, 254, 0.3); }
@@ -66,7 +66,6 @@
             resultsContainer.innerHTML = "";
             
             try {
-                // استخدام مسار نسبي مباشر لتفادي أي مشاكل CORS وضمان عمل السيرفر الداخلي بثبات
                 const response = await fetch('/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
