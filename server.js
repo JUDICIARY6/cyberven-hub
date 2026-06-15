@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-// مفتاحك الرسمي الصامد من الصورة
+// مفتاحك الرسمي والكامل المتطابق بنسبة 100% 🎯
 const API_KEY = "AQ.Ab8RN6KIGg1I-C8f3hD0AQyvKX_nDaPzJKzTXWYc2fcEzMlNlg"; 
 const PORT = process.env.PORT || 3000;
 
@@ -39,7 +39,7 @@ const server = http.createServer((req, res) => {
                 
                 const prompt = `You are an expert digital marketer. Create a ${days}-day social media content calendar for a business in the '${niche}' niche, targeting '${audience}'. Structure your answer inside clear HTML segments. For each day, use exactly this template: <div class='glass-card'><div class='day-badge'>📅 Day X</div><h3>[Insert Topic Title]</h3><p><strong>🌐 Platform:</strong> <span class='highlight'>[Insert Platform]</span></p><p><strong>✍️ Ad Copy:</strong><br><span class='copy-text'>[Insert Ad Copy with strong hooks and CTA]</span></p><p class='tags'>🔥 [Insert Hashtags]</p></div> Do not wrap the output in standard markdown blocks, just return raw HTML cards.`;
 
-                // تم التعديل هنا إلى الموديل المستقر المفتوح للخوادم السحابية مجاناً gemini-1.5-flash
+                // الاتصال بالموديل المستقر والمفتوح مجاناً للخوادم السحابية
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
