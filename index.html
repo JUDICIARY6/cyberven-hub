@@ -66,7 +66,7 @@
             resultsContainer.innerHTML = "";
             
             try {
-                // تعديل ذهبي: استدعاء تلقائي لنفس السيرفر الحالي بدون كتابة روابط ثابتة لمنع الحجب
+                // إرسال الطلب بشكل نسبي ومباشر إلى نفس السيرفر الحالي دون كتابة عناوين ثابتة لتجنب CORS تماماً
                 const response = await fetch('/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
