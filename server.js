@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // مفتاح جوجل الحقيقي والآمن والمستقر الخاص بمشروعك
-const API_KEY = "AQ.Ab8RN6IGg1I-C8f3hD0AQyvKX_nDaPzJKzTXWYc2fcEzMlNlg"; 
+const API_KEY = "AQ.Ab8RN6KIGg1I-C8f3hD0AQyvKX_nDaPzJKzTXWYc2fcEzMlNlg"; 
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
