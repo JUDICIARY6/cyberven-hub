@@ -1,0 +1,10 @@
+{
+  "name": "cyberven-digital-hub",
+  "version": "1.0.0",
+  "description": "Premium AI Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}
