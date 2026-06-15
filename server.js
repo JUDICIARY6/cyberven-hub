@@ -2,14 +2,11 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-// مفتاحك الرسمي والكامل المتطابق بنسبة 100% 🎯
-const API_KEY = "AQ.Ab8RN6KIGg1I-C8f3hD0AQyvKX_nDaPzJKzTXWYc2fcEzMlNlg"; 
-
-// إجبار السيرفر على الاستماع لمنفذ خوادم Render الثابت لمنع انقطاع الاتصال ⚡
+// قراءة المفتاح بأمان من بيئة العمل السحابية لمنع الحظر التلقائي من جوجل
+const API_KEY = process.env.GEMINI_API_KEY; 
 const PORT = 10000; 
 
 const server = http.createServer((req, res) => {
-    // إعدادات الـ CORS لتشغيل الاتصال السحابي السريع بدون قيود أمنية للمتصفح
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -20,7 +17,6 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // 1. عرض واجهة المستخدم الأساسية (index.html)
     if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
         fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
             if (err) { 
@@ -31,17 +27,19 @@ const server = http.createServer((req, res) => {
             res.end(data);
         });
 
-    // 2. استقبال البيانات وإرسالها إلى الموديل المستقر والمجاني 1.5-flash
     } else if (req.method === 'POST' && req.url === '/generate') {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
         req.on('end', async () => {
             try {
+                if (!API_KEY) {
+                    throw new Error("Missing GEMINI_API_KEY in Render Environment Variables.");
+                }
+
                 const { niche, audience, days } = JSON.parse(body);
                 
                 const prompt = `You are an expert digital marketer. Create a ${days}-day social media content calendar for a business in the '${niche}' niche, targeting '${audience}'. Structure your answer inside clear HTML segments. For each day, use exactly this template: <div class='glass-card'><div class='day-badge'>📅 Day X</div><h3>[Insert Topic Title]</h3><p><strong>🌐 Platform:</strong> <span class='highlight'>[Insert Platform]</span></p><p><strong>✍️ Ad Copy:</strong><br><span class='copy-text'>[Insert Ad Copy with strong hooks and CTA]</span></p><p class='tags'>🔥 [Insert Hashtags]</p></div> Do not wrap the output in standard markdown blocks, just return raw HTML cards.`;
 
-                // الاتصال بالموديل المستقر والمفتوح مجاناً لخوادم وجوجل
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -50,11 +48,8 @@ const server = http.createServer((req, res) => {
 
                 const data = await response.json();
                 
-                // طباعة الاستجابة في لوحة تحكم Render للمراقبة والتشخيص الدقيق
-                console.log("Google AI Response Data:", JSON.stringify(data));
-
                 if (!data.candidates || data.candidates.length === 0) {
-                    throw new Error(data.error ? data.error.message : "Google AI Engine returned empty candidates. Check key restrictions.");
+                    throw new Error(data.error ? data.error.message : "Google AI Engine returned empty candidates.");
                 }
 
                 const aiText = data.candidates[0].content.parts[0].text;
@@ -63,7 +58,6 @@ const server = http.createServer((req, res) => {
                 res.end(JSON.stringify({ html: aiText }));
 
             } catch (error) {
-                console.error("SERVER INNER ERROR:", error.message);
                 res.writeHead(500, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: error.message }));
             }
