@@ -1,17 +1,13 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 
+// جلب المفتاح السري من متغيرات البيئة في Render
 const API_KEY = process.env.GEMINI_API_KEY; 
 const PORT = 10000; 
 
-let genAI = null;
-if (API_KEY) {
-    genAI = new GoogleGenerativeAI(API_KEY);
-}
-
 const server = http.createServer((req, res) => {
+    // إعدادات الـ CORS الكاملة لمنع أي حجب
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -22,6 +18,7 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // [1] عرض واجهة المستخدم الأساسية (index.html)
     if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
         fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
             if (err) { 
@@ -32,12 +29,13 @@ const server = http.createServer((req, res) => {
             res.end(data);
         });
 
+    // [2] استقبال البيانات وتوليد المحتوى عبر اتصال صريح مباشر
     } else if (req.method === 'POST' && req.url === '/generate') {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
         req.on('end', async () => {
             try {
-                if (!API_KEY || !genAI) {
+                if (!API_KEY) {
                     throw new Error("Missing GEMINI_API_KEY in Render Environment Variables.");
                 }
 
@@ -45,15 +43,34 @@ const server = http.createServer((req, res) => {
                 
                 const prompt = `You are an expert digital marketer. Create a ${days}-day social media content calendar for a business in the '${niche}' niche, targeting '${audience}'. Structure your answer inside clear HTML segments. For each day, use exactly this template: <div class='glass-card'><div class='day-badge'>📅 Day X</div><h3>[Insert Topic Title]</h3><p><strong>🌐 Platform:</strong> <span class='highlight'>[Insert Platform]</span></p><p><strong>✍️ Ad Copy:</strong><br><span class='copy-text'>[Insert Ad Copy with strong hooks and CTA]</span></p><p class='tags'>🔥 [Insert Hashtags]</p></div> Do not wrap the output in standard markdown blocks, just return raw HTML cards.`;
 
-                // استخدام الموديل الفلاش الأساسي المدعوم كلياً في النسخة الجديدة
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                // الرابط المباشر الصافي والأحدث لخوادم جوجل بدون أي مكتبات وسيطة
+                const googleUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-                const result = await model.generateContent(prompt);
-                const response = await result.response;
-                const aiText = response.text();
+                const response = await fetch(googleUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error(`Google returned non-JSON text: ${responseText}`);
+                }
+
+                if (!response.ok) {
+                    throw new Error(data.error?.message || `Google API Error: ${response.status}`);
+                }
+
+                // استخراج النص من الهيكل الصافي للرد
+                const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
                 if (!aiText) {
-                    throw new Error("Google AI Engine returned empty data.");
+                    throw new Error("Google AI Engine returned empty candidates.");
                 }
                 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -71,5 +88,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`⚡ CYBERVEN SPEED ENGINE IS LIVE ⚡`);
+    console.log(`⚡ CYBERVEN NATIVE ENGINE IS LIVE ⚡`);
 });
