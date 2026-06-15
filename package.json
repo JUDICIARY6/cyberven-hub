@@ -1,15 +1,15 @@
 {
-  "name": "cyberven-ai-planner",
+  "name": "cyberven-digital-hub",
   "version": "1.0.0",
-  "description": "Cyberven Premium Liquid Glass AI Content Strategy Planner",
+  "description": "Premium Liquid Glass AI Marketing Engine",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "dependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "engines": {
     "node": ">=18.0.0"
-  },
-  "author": "JUDICIARY6",
-  "license": "ISC"
+  }
 }
