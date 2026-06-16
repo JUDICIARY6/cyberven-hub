@@ -1,14 +1,10 @@
 {
   "name": "cyberven-digital-hub",
   "version": "1.0.0",
-  "description": "Premium Liquid Glass AI Marketing Engine",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "engines": {
     "node": ">=18.0.0"
   }
