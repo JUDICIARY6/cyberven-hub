@@ -2,7 +2,6 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-// استخدام مفتاح DeepSeek الجديد
 const DS_API_KEY = process.env.DS_API_KEY ? process.env.DS_API_KEY.trim() : ''; 
 const PORT = 10000; 
 
@@ -32,15 +31,15 @@ const server = http.createServer((req, res) => {
                 const { niche, audience, days } = JSON.parse(body);
                 const prompt = `Create a ${days}-day social media content calendar for a '${niche}' business, targeting '${audience}'. Use this template for each day: <div class='glass-card'><div class='day-badge'>📅 Day X</div><h3>[Topic]</h3><p><strong>🌐 Platform:</strong> [Platform]</p><p><strong>✍️ Ad Copy:</strong> [Copy]</p><p class='tags'>🔥 [Hashtags]</p></div> Return raw HTML only.`;
 
-                // الاتصال المباشر بمحرك DeepSeek
-                const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+                // 🎯 التغيير هنا: استخدام موديل deepseek-chat الذي يوجه تلقائياً لنسخة V4 الأحدث
+                const response = await fetch("https://api.deepseek.com/chat/completions", {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${DS_API_KEY}`
                     },
                     body: JSON.stringify({
-                        model: "deepseek-chat",
+                        model: "deepseek-chat", 
                         messages: [{ role: "user", content: prompt }]
                     })
                 });
