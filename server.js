@@ -7,12 +7,12 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY ? process.env.GROQ_API_KEY.trim() 
 app.use(express.json());
 app.use(express.static(__dirname));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
 app.post('/generate', async (req, res) => {
+    console.log("استلمت طلب توليد..."); // للتأكد أن الطلب يصل للسيرفر
+    
     try {
+        if (!GROQ_API_KEY) throw new Error("مفتاح API غير موجود في إعدادات البيئة!");
+
         const { niche, audience, days } = req.body;
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: 'POST',
@@ -27,13 +27,16 @@ app.post('/generate', async (req, res) => {
         });
 
         const data = await response.json();
+        console.log("رد Groq:", JSON.stringify(data)); // هذا السطر سيظهر لنا الخطأ الحقيقي في الـ Logs
+
         if (data.choices && data.choices[0]) {
             res.json({ html: data.choices[0].message.content });
         } else {
-            throw new Error("No response from AI");
+            res.status(500).json({ error: "رد غير متوقع من المحرك" });
         }
     } catch (error) {
-        res.status(500).json({ error: "فشل الاتصال بالمحرك" });
+        console.error("خطأ تقني:", error.message);
+        res.status(500).json({ error: error.message });
     }
 });
 
