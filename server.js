@@ -2,8 +2,9 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY ? process.env.GROQ_API_KEY.trim() : '';
+// Render يحدد المنفذ عبر process.env.PORT
 const PORT = process.env.PORT || 10000;
+const GROQ_API_KEY = process.env.GROQ_API_KEY ? process.env.GROQ_API_KEY.trim() : '';
 
 const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -38,16 +39,22 @@ const server = http.createServer((req, res) => {
                 });
 
                 const data = await response.json();
-                const aiText = data.choices[0].message.content;
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ html: aiText }));
+                
+                if (data.choices && data.choices[0]) {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ html: data.choices[0].message.content }));
+                } else {
+                    throw new Error("خطأ في رد Groq");
+                }
             } catch (error) {
                 res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: "خطأ في الاتصال بالمحرك المجاني." }));
+                res.end(JSON.stringify({ error: "فشل الاتصال" }));
             }
         });
     }
 });
 
-server.listen(PORT, '0.0.0.0');
+// هذا هو الجزء الأهم لـ Render
+server.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+});
