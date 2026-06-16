@@ -2,10 +2,12 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const DS_API_KEY = process.env.DS_API_KEY ? process.env.DS_API_KEY.trim() : ''; 
-const PORT = 10000; 
+// استخدام المنفذ الذي يحدده Render، وإلا استخدم 10000
+const PORT = process.env.PORT || 10000;
+const DS_API_KEY = process.env.DS_API_KEY ? process.env.DS_API_KEY.trim() : '';
 
 const server = http.createServer((req, res) => {
+    // إعدادات الـ CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -14,6 +16,7 @@ const server = http.createServer((req, res) => {
 
     if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
         fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
+            if (err) { res.writeHead(500); res.end('Error'); return; }
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.end(data);
         });
@@ -39,12 +42,13 @@ const server = http.createServer((req, res) => {
 
                 const data = await response.json();
                 
-                // 🎯 التصحيح الذكي: فحص هيكل الرد قبل قراءته
-                let aiText = "عذراً، لم يتم العثور على محتوى في رد السيرفر.";
+                // فحص هيكل الرد الجديد للـ V4
+                let aiText = "";
                 if (data.choices && data.choices[0] && data.choices[0].message) {
                     aiText = data.choices[0].message.content;
                 } else {
-                    console.log("هيكل الرد غير متوقع:", JSON.stringify(data)); // هذا السطر سيظهر لك الهيكل في الـ Logs
+                    aiText = "<div class='glass-card'>عذراً، المحرك عاد برد غير متوقع. يرجى المحاولة مرة أخرى.</div>";
+                    console.error("DeepSeek API Response:", JSON.stringify(data));
                 }
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -58,4 +62,6 @@ const server = http.createServer((req, res) => {
     }
 });
 
-server.listen(PORT);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+});
